@@ -98,7 +98,7 @@ int main (
 	}
 
 	// Declare a pointer that will hold our entropy
-	void *entropy;
+	void *random_bytes;
 
 	// If we are skipping AWS, then use fake entropy
 	if (arg_skip_aws == 1) {
@@ -109,7 +109,7 @@ int main (
 			return 1;
 		}
 		memset(fake_entropy, RANDOM_COUNT, 255);
-		entropy = fake_entropy;
+		random_bytes = fake_entropy;
 	}
 	
 	// If we _are_ using AWS, then call out to it
@@ -140,7 +140,7 @@ int main (
 	entropy->buf_size = RANDOM_COUNT;
 	
 	// Fill the remaining space with our entropy
-	memcpy(entropy->buf, fake_entropy, RANDOM_COUNT);
+	memcpy(entropy->buf, random_bytes, RANDOM_COUNT);
 	
 	// Add the entropy to the kernel
 	int add_result;
