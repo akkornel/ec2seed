@@ -20,24 +20,6 @@ const char *RANDOM_PATH = "/dev/urandom";
 
 const int RANDOM_COUNT = 1024;
 
-/* 
- * Program options
- */
-
-struct option args[2];
-
-// 1: skip-aws tells us to use fake entropy, and not even try AWS
-args[0].name = "skip-aws";
-args[0].has_arg = no_argument;
-args[0].flag = NULL;
-args[0].val = 1;
-
-// This is the end of the options array
-args[1].name = "";
-args[1].has_arg = 0;
-args[1].flag = NULL;
-args[1].val = 0;
-
 /*
  * Functions that we'll be calling later.
  */
@@ -55,8 +37,22 @@ int main (
 	/*
 	 * Program Arguments
 	 */
-	// arg_skip_aws: If true, don't query AWS at all (use fake entropy)
+
+	// Define our arguments
+	struct option args[2];
+
+	// 1: skip-aws tells us to use fake entropy, and not even try AWS
 	int arg_skip_aws = 0;
+	args[0].name = "skip-aws";
+	args[0].has_arg = no_argument;
+	args[0].flag = NULL;
+	args[0].val = 1;
+
+	// This is the end of the options array
+	args[1].name = "";
+	args[1].has_arg = 0;
+	args[1].flag = NULL;
+	args[1].val = 0;
 
 	// Get our arguments
 	int arg, arg_index;
