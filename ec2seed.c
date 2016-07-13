@@ -69,7 +69,7 @@ int main (
 				break;
 
 			default:
-				printf("Unexpected argument \d found!\n", arg);
+				printf("Unexpected argument %d found!\n", arg);
 		}
 	} while (arg != -1);
 
