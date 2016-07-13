@@ -16,8 +16,15 @@
  * Program static configuration.
  */
 
+
+//! The path to the random device
 const char *RANDOM_PATH = "/dev/urandom";
 
+//! The number of random bytes to generate
+/*!
+ * AWS has a minimum value of 1, and a maximum value of 1,024.
+ * We need this to be divisible by 32.
+ */
 const int RANDOM_COUNT = 1024;
 
 /*
@@ -112,7 +119,7 @@ int main (
 		memset(fake_entropy, RANDOM_COUNT, 255);
 		random_bytes = fake_entropy;
 	}
-	
+
 	// If we _are_ using AWS, then call out to it
 	else {
 		printf("We don't support AWS yet!\n");
@@ -135,7 +142,7 @@ int main (
 		perror("Unable to allocate memory for the entropy pool");
 		return 1;
 	}
-	
+
 	// Set up our entropy struct fields
 	entropy->entropy_count = RANDOM_COUNT * 8;
 	entropy->buf_size = RANDOM_COUNT;
@@ -171,9 +178,11 @@ int main (
  * Support Functions
  */
 
-/* entropy_available: 
-   fd: The file descriptor pointing to a random device.
-*/
+//! Return the amount of entropy available in a random device's pool.
+/*!
+ * \param fd A file descriptor for an open random device.
+ * \return The number of bits of entropy available.
+ */
 int entropy_available (
 	const int fd
 ) {
