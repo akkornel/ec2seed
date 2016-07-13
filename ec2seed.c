@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <linux/random.h>
 #include <linux/types.h>
@@ -67,10 +68,10 @@ int main (
 	
 	// Set up our entropy struct fields
 	entropy->entropy_count = RANDOM_COUNT * 8;
-	entropy->buf_suze = RANDOM_COUNT;
+	entropy->buf_size = RANDOM_COUNT;
 	
 	// Fill the remaining space with our entropy
-	memcpy(rand_pool_info->buf, fake_entropy, RANDOM_COUNT);
+	memcpy(entropy->buf, fake_entropy, RANDOM_COUNT);
 	
 	// Add the entropy to the kernel
 	int add_result;
