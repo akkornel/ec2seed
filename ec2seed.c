@@ -33,7 +33,7 @@ int main (
 	// Let's do this now, just in case things fail.
 	int random_fd;
 	random_fd = open(RANDOM_PATH, O_WRONLY);
-	if (random_file == -1) {
+	if (random_fd == -1) {
 		perror("Error opening random file");
 		return 1;
 	}
@@ -45,35 +45,32 @@ int main (
 	}
 	
 	// Create a pool of fake entropy
-	char *fake_entropy = malloc(RANDOM_COUNT);
+	void *fake_entropy = malloc(RANDOM_COUNT);
 	if (fake_entropy == NULL) {
 		perror("Unable to allocate memory for fake entropy");
 		return 1;
 	}
-	memset(fake_entropy, RANDOM_COUNT, "\0xFF");
+	memset(fake_entropy, RANDOM_COUNT, 255);
 
 	// Create our entropy struct
 	/* Fun fact: The buffer is declared to be an array of 32-bit units, but
 	 * in code it gets treated as an array of bytes.
 	 * To be safe, make sure that our amount of entropy is divisible by 32.
 	 */
-	assert((RANDOM_COUNT) % 32 == 0);
-	int RANDOM_COUNT_len_u32 = RANDOM_COUNT / sizeof(__u32);
-	
-	// Allocate space for the struct plus the data
 	struct rand_pool_info *entropy;
-	entropy = malloc(sizeof(struct rand_pool_info) + RANDOM_COUNT_len_u32);
+	assert((RANDOM_COUNT) % sizeof(__u32) == 0);
+	entropy = malloc(sizeof(struct rand_pool_info) + RANDOM_COUNT);
 	if (entropy == NULL) {
 		perror("Unable to allocate memory for the entropy pool");
 		return 1;
 	}
 	
 	// Set up our entropy struct fields
-	rand_pool_info->entropy_count = RANDOM_COUNT * 8;
-	rand_pool_info->buf_suze = RANDOM_COUNT;
+	entropy->entropy_count = RANDOM_COUNT * 8;
+	entropy->buf_suze = RANDOM_COUNT;
 	
 	// Fill the remaining space with our entropy
-	memset(rand_pool_info->buf, fake_entropy, RANDOM_COUNT);
+	memcpy(rand_pool_info->buf, fake_entropy, RANDOM_COUNT);
 	
 	// Add the entropy to the kernel
 	int add_result;
