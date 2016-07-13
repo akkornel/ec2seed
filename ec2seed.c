@@ -59,12 +59,17 @@ int main (
 	do {
 		arg = getopt_long(argc, argv, "", args, &arg_index);
 		switch(arg) {
+			// skip-aws
 			case 1:
 				arg_skip_aws = 1;
 				break;
 
+			// no more arguments
+			case -1:
+				break;
+
 			default:
-				printf("Unexpected argument found!\n");
+				printf("Unexpected argument \d found!\n", arg);
 		}
 	} while (arg != -1);
 
