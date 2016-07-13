@@ -8,7 +8,7 @@ dnl Make sure we have the Linux headers we need
 AC_CHECK_HEADERS([linux/random.h linux/types.h])
 
 dnl Check for some more headers that we need
-AC_CHECK_HEADERS([assert.h fcntl.h sys/ioctl.h])
+AC_CHECK_HEADERS([assert.h fcntl.h getopt.h unistd.h sys/ioctl.h])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])

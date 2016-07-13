@@ -1,9 +1,11 @@
 #include <assert.h>
 #include <fcntl.h>
+#include <getopt.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <linux/random.h>
 #include <linux/types.h>
 #include <sys/ioctl.h>
@@ -13,10 +15,28 @@
 /* 
  * Program static configuration.
  */
- 
+
 const char *RANDOM_PATH = "/dev/urandom";
 
 const int RANDOM_COUNT = 1024;
+
+/* 
+ * Program options
+ */
+
+struct option args[2];
+
+// 1: skip-aws tells us to use fake entropy, and not even try AWS
+args[0].name = "skip-aws";
+args[0].has_arg = no_argument;
+args[0].flag = NULL;
+args[0].val = 1;
+
+// This is the end of the options array
+args[1].name = "";
+args[1].has_arg = 0;
+args[1].flag = NULL;
+args[1].val = 0;
 
 /*
  * Functions that we'll be calling later.
@@ -29,7 +49,39 @@ int entropy_available(const int);
  */
 
 int main (
+	int argc,
+	char **argv
 ) {
+	/*
+	 * Program Arguments
+	 */
+	// arg_skip_aws: If true, don't query AWS at all (use fake entropy)
+	int arg_skip_aws = 0;
+
+	// Get our arguments
+	int arg, arg_index;
+	do {
+		arg = getopt_long(argc, argv, "", args, &arg_index);
+		switch(arg) {
+			case 1:
+				arg_skip_aws = 1;
+				break;
+
+			default:
+				printf("Unexpected argument found!\n");
+		}
+	} while (arg != -1);
+
+	// We shouldn't have any other arguments
+	if (optind < argc) {
+		printf("Unexpected extra arguments found on the command line\n");
+		return 1;
+	}
+
+	/*
+	 * Pre-Entropy Setup
+	 */
+
 	// Open the random device for writing
 	// Let's do this now, just in case things fail.
 	int random_fd;
@@ -44,14 +96,31 @@ int main (
 	if (entropy_before == -1) {
 		perror("Error getting current entropy\n");
 	}
+
+	// Declare a pointer that will hold our entropy
+	void *entropy;
+
+	// If we are skipping AWS, then use fake entropy
+	if (arg_skip_aws == 1) {
+		// Create a pool of fake entropy
+		void *fake_entropy = malloc(RANDOM_COUNT);
+		if (fake_entropy == NULL) {
+			perror("Unable to allocate memory for fake entropy");
+			return 1;
+		}
+		memset(fake_entropy, RANDOM_COUNT, 255);
+		entropy = fake_entropy;
+	}
 	
-	// Create a pool of fake entropy
-	void *fake_entropy = malloc(RANDOM_COUNT);
-	if (fake_entropy == NULL) {
-		perror("Unable to allocate memory for fake entropy");
+	// If we _are_ using AWS, then call out to it
+	else {
+		printf("We don't support AWS yet!\n");
 		return 1;
 	}
-	memset(fake_entropy, RANDOM_COUNT, 255);
+
+	/*
+	 * Entropy Loading
+	 */
 
 	// Create our entropy struct
 	/* Fun fact: The buffer is declared to be an array of 32-bit units, but
@@ -80,6 +149,10 @@ int main (
 		perror("Error adding entropy to kernel");
 		return 1;
 	}
+
+	/*
+	 * Post-Entropy Cleanup
+	 */
 
 	// Capture the amount of entropy after seeing
 	int entropy_after = entropy_available(random_fd);
