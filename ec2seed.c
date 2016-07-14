@@ -6,14 +6,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <curl/curl.h>
 #include <linux/random.h>
 #include <linux/types.h>
 #include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-
-#include "handle_curl.h"
 
 /* 
  * Program static configuration.
@@ -92,12 +89,6 @@ int main (
 	/*
 	 * Pre-Entropy Setup
 	 */
-
-	// Set up a curl object
-	CURL *curl = curl_easy_init();
-	if (curl != NULL) {
-		
-	}
 
 	// Open the random device for writing
 	// Let's do this now, just in case things fail.
