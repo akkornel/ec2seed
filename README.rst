@@ -21,8 +21,9 @@ like this...
 available (that is, it doesn't increase the counter), because the kernel does not know
 how many bits of entropy were in what you just added.
 
-`ec2seed` is written in C because it uses `ioctl()` calls to not only add entropy, but
-also to increase the counter.
+`ec2seed` is written in C because it uses `ioctl()` calls that add entropy *and* increase
+the entropy count.  This also means that `ec2seed` needs to be run as root, preferably
+by something like systemd.
 
 Random Data Sources
 -------------------
