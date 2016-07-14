@@ -85,7 +85,7 @@ For instructions on how to build, install, configure and use `ec2seed`, check ou
 
 In short:
 
-..
+::
 
 	autoreconf -i
 	./configure
