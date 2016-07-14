@@ -43,7 +43,8 @@ and add it to the kernel's random pool:
 
 * The Local IPv4 Address.
 
-* The MAC address for `eth0`.
+* The MAC address for `eth0`.  Twenty-four bits of entropy, corresponding to the last
+  three octets (the non-vendor-ID part) of the MAC address.
 
 * The instance identity document signature, after being Base64-decoded.
 
