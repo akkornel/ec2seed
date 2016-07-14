@@ -22,11 +22,11 @@ Dependencies
 This software has three dependencies that must be present before it will run:
 
 * **Linux**.  Even though this is written in C, it uses Linux-specific functionality, and
-so will not run (or easily build) on other OSes.
+  so will not run (or easily build) on other OSes.
 
 * **CURL** is used for all of our HTTP and HTTPS calls.  You will need a CURL that has
-been built with SSL support.  The exact SSL library in use (OpenSSL, LibreSSL, or NSS)
-doesn't matter, just so long as SSL support is there.
+  been built with SSL support.  The exact SSL library in use (OpenSSL, LibreSSL, or NSS)
+  doesn't matter, just so long as SSL support is there.
 
 * **JSON-C** is used for parsing JSON from AWS.
 
