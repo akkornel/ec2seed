@@ -50,7 +50,7 @@ struct mycurl_web_page {
  * Private functions
  */
 
-CURL * mycurl_init_if_needed(CURL *, enum mycurl_init_ssl);
+CURL * mycurl_init_if_needed(enum mycurl_init_ssl);
 
 struct mycurl_web_page *mycurl_web_page_init();
 
@@ -91,7 +91,7 @@ CURL *mycurl_init_if_needed(
 	// Initialize the global curl environment, only enabling SSL if needed
 	long curl_flags = CURL_GLOBAL_NOTHING;
 	if (MYCURL_SSL_YES == ssl_required) {
-		curl_flags ||= CURL_GLOBAL_SSL;
+		curl_flags =| CURL_GLOBAL_SSL;
 	}
 	CURLcode curl_result = curl_global_init(curl_flags);
 	if (curl_result != CURLE_OK) {
@@ -101,14 +101,14 @@ CURL *mycurl_init_if_needed(
 
 	// Initialize the easy curl handler
 	mycurl_handle = curl_easy_init();
-	if (curl_handle == NULL) {
+	if (mycurl_handle == NULL) {
 		mycurl_cleanup_if_needed();
 		return NULL;
 	}
 	
 	// Update global settings and return
 	mycurl_ssl_mode = ssl_required;
-	return curl_handle;
+	return mycurl_handle;
 }
 
 //! Clean up curl, if needed
@@ -123,7 +123,7 @@ void mycurl_cleanup_if_needed() {
 	}
 	// If we don't have a curl handle to free, then we might be leaking memory.
 	if (mycurl_handle != NULL) {
-		curl_easy_cleanup(curl_handle);
+		curl_easy_cleanup(mycurl_handle);
 		mycurl_handle = NULL;
 	}
 	curl_global_cleanup();
@@ -137,10 +137,8 @@ void mycurl_cleanup_if_needed() {
 
 //! Make a web request of some sort
 /*!
- * \param ssl_mode The SSL mode to use.
+ * \param url The protocol, host, port (optional), and path.  NO protocol, '?', or query!
  *
- * \param host_path The host, port (optional), and path.  NO protocol, '?', or query!
-
  * \param header_items Either NULL, or a pointer to the start of a list of header items.
  * You should be prepared for them to be reordered.
  *
@@ -157,8 +155,7 @@ void mycurl_cleanup_if_needed() {
  * Be aware that this may not be possible.
  */
 struct mycurl_result *mycurl_do(
-	enum mycurl_init_ssl ssl_mode,
-	char *host_path,
+	char *url,
 	struct mycurl_item *header_items,
 	struct mycurl_item *query_items,
 	char *post_data,
@@ -166,6 +163,15 @@ struct mycurl_result *mycurl_do(
 	char *post_content_type,
 	bool ascii_result
 ) {
+	// Set our protocol based on the SSL mode, and disable path manipulation
+	// Set the SSL mode based on the protocol
+	enum mycurl_ssl_mode ssl_mode;
+	if (strstr(url, "https") == url) {
+		ssl_mode = MYCURL_SSL_YES;
+	} else {
+		ssl_mode = MYCURL_SSL_NO;
+	}
+
 	// Get our curl handle
 	CURL *curl_handle = mycurl_init_if_needed(ssl_mode);
 	if (curl_handle == NULL) {
@@ -173,13 +179,8 @@ struct mycurl_result *mycurl_do(
 		return NULL;
 	}
 
-	// Set our protocol based on the SSL mode, and disable path manipulation
-	if (ssl_mode == MYCURL_SSL_YES) {
-		curl_easy_setopt(curl_handle, CURLOPT_DEFAULT_PROTOCOL, "https");
-	} else {
-		curl_easy_setopt(curl_handle, CURLOPT_DEFAULT_PROTOCOL, "http");
-	}
-	curl_easy_setopt(curl_handle, CURLOPT_PATH_AS_IS, 1L);
+	// Disabling path manipulation needs libcurl 7.42.0 or later
+	//curl_easy_setopt(curl_handle, CURLOPT_PATH_AS_IS, 1L);
 
 	// Allow redirects, and allow POSTing to redirects
 	curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
@@ -201,8 +202,8 @@ struct mycurl_result *mycurl_do(
 
 	// Initialize our response object
 	struct mycurl_web_page *web_page = mycurl_web_page_init();
-	curl_set_easyopt(curl_handle, CURLOPT_WRITEFUNCTION, mycurl_receive);
-	curl_set_easyopt(curl_handle, CURLOPT_WRITEDATA, (void *)&(handle.response_body));
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, mycurl_receive);
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)web_page);
 	
 	// Assemble our query items into the query string
 
@@ -226,16 +227,17 @@ struct mycurl_web_page* mycurl_web_page_init() {
 
 	// Allocate our initial content space
 	size_t actual_initial_allocation = sizeof(uint8_t) * mycurl_initial_allocation;
-	web_page.content = malloc(actual_initial_allocation);
-	if (web_page.content == NULL) {
+	web_page->content = malloc(actual_initial_allocation);
+	if (web_page->content == NULL) {
+		free(web_page);
 		return NULL;
 	}
 
 	// Set up the rest of the web page attributes
-	web_page.content[0] = '\0';
-	web_page.content_end = web_page->content;
-	web_page.length_bytes = actual_initial_allocation;
-	web_page.bytes_available = actual_initial_allocation - 1;
+	web_page->content[0] = '\0';
+	web_page->content_end = web_page->content;
+	web_page->length_bytes = actual_initial_allocation;
+	web_page->bytes_available = actual_initial_allocation - 1;
 
 	// Ready to go!
 	return web_page;
@@ -275,7 +277,7 @@ static size_t mycurl_receive(
 		if (new_content == NULL) {
 			return 0;
 		}
-		elsif (new_content != web_page->content) {
+		else if (new_content != web_page->content) {
 			// A new allocation means updating the start AND end pointers
 			web_page->content = new_content;
 			web_page->content_end = &(web_page->content[web_page->length_bytes]);

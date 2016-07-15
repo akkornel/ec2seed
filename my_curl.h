@@ -31,9 +31,12 @@ struct mycurl_result {
  */
 
 struct mycurl_result *mycurl_do(
-	char * url,
+	char *url,
 	struct mycurl_item *header_items,
 	struct mycurl_item *query_items,
+	char *post_data,
+	long post_size,
+	char *post_content_type,
 	bool ascii_result
 );
 
