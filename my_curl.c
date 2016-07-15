@@ -25,7 +25,7 @@ static bool mycurl_active = 0;
 static CURL *mycurl_handle;
 
 //! The currently-active curl SSL mode
-bool mycurl_init_ssl mycurl_ssl_mode;
+static bool mycurl_init_ssl;
 
 /*
  * Private structures
@@ -50,7 +50,7 @@ struct mycurl_web_page {
  * Private functions
  */
 
-CURL * mycurl_init_if_needed(enum mycurl_init_ssl);
+CURL * mycurl_init_if_needed(bool);
 
 struct mycurl_web_page *mycurl_web_page_init();
 
@@ -73,7 +73,7 @@ CURL *mycurl_init_if_needed(
 ) {
 	// If things are where we want them, don't do anything
 	if (   (mycurl_active == 1)
-		&& (mycurl_ssl_mode == ssl_required)
+		&& (mycurl_init_ssl == ssl_required)
 		&& (mycurl_handle != NULL)
 	) {
 		return mycurl_handle;
@@ -107,7 +107,7 @@ CURL *mycurl_init_if_needed(
 	}
 	
 	// Update global settings and return
-	mycurl_ssl_mode = ssl_required;
+	mycurl_init_ssl = ssl_required;
 	return mycurl_handle;
 }
 
@@ -128,7 +128,7 @@ void mycurl_cleanup_if_needed() {
 	}
 	curl_global_cleanup();
 	mycurl_active = 0;
-	mycurl_ssl_mode = MYCURL_SSL_NO;
+	mycurl_init_ssl = false;
 }
 
 /*
