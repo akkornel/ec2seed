@@ -1,8 +1,14 @@
 AC_INIT(EC2 Instance Seeder, 0.1, [], ec2seed, https://github.com/akkornel/ec2seed)
 
+dnl We need autoconf 2.60 to get AC_PROG_CC_C99
+AC_PREREQ([2.60])
+
 AM_INIT_AUTOMAKE(foreign)
 
 AC_PROG_CC
+
+dnl We need C99 for the bool type
+AC_PROG_CC_C99
 
 dnl Make sure we have the Linux headers we need
 AC_CHECK_HEADERS([linux/random.h linux/types.h])
