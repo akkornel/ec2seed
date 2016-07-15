@@ -14,7 +14,7 @@ dnl Make sure we have the json-c module
 PKG_CHECK_MODULES([JSON], [json-c])
 
 dnl We need libcurl 7.37.0+ for proper POST handling with redirects
-PKG_CHECK_MODULES([CURL], [libcurl >= 7.37.0])
+PKG_CHECK_MODULES([CURL], [libcurl >= 7.35.0])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])

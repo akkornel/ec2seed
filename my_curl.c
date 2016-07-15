@@ -188,7 +188,8 @@ struct mycurl_result *mycurl_do(
 	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "karl-curl/1.0");
 
 	// Make sure headers go to the server, not to proxies
-	curl_easy_setopt(curl_handle, CURLOPT_HEADEROPT, CURLHEADER_SEPARATE);
+	// This requires libcurl 7.37.0 or later; Ubuntu Trusty has 7.35.0
+	// curl_easy_setopt(curl_handle, CURLOPT_HEADEROPT, CURLHEADER_SEPARATE);
 
 	// If we have POST data, then add it now
 	if (post_data != NULL) {
