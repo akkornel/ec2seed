@@ -75,9 +75,11 @@ Prerequisites
 -------------
 
 We rely on **CURL** for all of our HTTP and HTTPS traffic, and we use **JSON-C** to parse
-the JSON that AWS returns.  Since KMS requires the use of HTTPS, then you need to provide
-a libcurl that was built with some sort of SSL support (OpenSSL, LibreSSL, or NSS should
-be fine).
+the JSON that AWS returns.  We also use **libunichar** to process anything that comes
+back as UTF-8.
+
+Since KMS requires the use of HTTPS, then you need to provide a libcurl that was built
+with some sort of SSL support (OpenSSL, LibreSSL, or NSS should be fine).
 
 Instructions
 ------------
