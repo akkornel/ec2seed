@@ -10,9 +10,11 @@ AC_CHECK_HEADERS([linux/random.h linux/types.h])
 dnl Check for some more headers that we need
 AC_CHECK_HEADERS([assert.h fcntl.h getopt.h unistd.h sys/ioctl.h])
 
-dnl Make sure we have the json-c and libcurl
+dnl Make sure we have the json-c module
 PKG_CHECK_MODULES([JSON], [json-c])
-PKG_CHECK_MODULES([CURL], [libcurl])
+
+dnl We need libcurl 7.37.0+ for proper POST handling with redirects
+PKG_CHECK_MODULES([CURL], [libcurl >= 7.37.0])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
