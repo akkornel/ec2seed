@@ -2,17 +2,12 @@
 #ifndef MY_CURL_H
 #define MY_CURL_H
 
+#include <stdbool.h>
 #include <unitypes.h>
 
 /*
  * Public objects
  */
-
-//! Should the curl environment be initialized with SSL on?
-enum mycurl_init_ssl {
-	MYCURL_SSL_YES,
-	MYCURL_SSL_NO
-};
 
 struct mycurl_item {
 	char *item_name;

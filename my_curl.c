@@ -25,7 +25,7 @@ static bool mycurl_active = 0;
 static CURL *mycurl_handle;
 
 //! The currently-active curl SSL mode
-static enum mycurl_init_ssl mycurl_ssl_mode;
+bool mycurl_init_ssl mycurl_ssl_mode;
 
 /*
  * Private structures
@@ -69,7 +69,7 @@ static size_t mycurl_receive(void *, size_t, size_t, void *);
  * \returns The curl handle to use going forward.
  */
 CURL *mycurl_init_if_needed(
-	enum mycurl_init_ssl ssl_required
+	bool ssl_required
 ) {
 	// If things are where we want them, don't do anything
 	if (   (mycurl_active == 1)
@@ -90,8 +90,8 @@ CURL *mycurl_init_if_needed(
 
 	// Initialize the global curl environment, only enabling SSL if needed
 	long curl_flags = CURL_GLOBAL_NOTHING;
-	if (MYCURL_SSL_YES == ssl_required) {
-		curl_flags =| CURL_GLOBAL_SSL;
+	if (ssl_required == true) {
+		curl_flags |= CURL_GLOBAL_SSL;
 	}
 	CURLcode curl_result = curl_global_init(curl_flags);
 	if (curl_result != CURLE_OK) {
@@ -165,15 +165,15 @@ struct mycurl_result *mycurl_do(
 ) {
 	// Set our protocol based on the SSL mode, and disable path manipulation
 	// Set the SSL mode based on the protocol
-	enum mycurl_ssl_mode ssl_mode;
-	if (strstr(url, "https") == url) {
-		ssl_mode = MYCURL_SSL_YES;
+	bool init_ssl;
+	if (strstr(url, "https://") == url) {
+		init_ssl = true;
 	} else {
-		ssl_mode = MYCURL_SSL_NO;
+		init_ssl = false;
 	}
 
 	// Get our curl handle
-	CURL *curl_handle = mycurl_init_if_needed(ssl_mode);
+	CURL *curl_handle = mycurl_init_if_needed(init_ssl);
 	if (curl_handle == NULL) {
 		mycurl_cleanup_if_needed();
 		return NULL;
