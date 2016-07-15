@@ -16,6 +16,9 @@ PKG_CHECK_MODULES([JSON], [json-c])
 dnl We need libcurl 7.37.0+ for proper POST handling with redirects
 PKG_CHECK_MODULES([CURL], [libcurl >= 7.35.0])
 
+dnl We need libunistring to handle UTF-8 responses
+AC_CHECK_LIB(u8_check, lunistring)
+
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
 

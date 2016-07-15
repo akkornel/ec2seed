@@ -30,6 +30,8 @@ This software has three dependencies that must be present before it will run:
 
 * **JSON-C** is used for parsing JSON from AWS.
 
+* **libunistring** is used for handling any responses that come back as UTF-8.
+
 When building, we need the headers for all the above dependencies.  `pkg-config` is also
 required, because that's how we verify that the dependencies are installed.
 
