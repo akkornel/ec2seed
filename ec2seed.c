@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+#include "my_curl.h"
+
 /* 
  * Program static configuration.
  */
@@ -171,6 +173,7 @@ int main (
 	// All done!
 	printf("Random entropy seeding %d->%d\n", entropy_before, entropy_after);
 	close(random_fd);
+	mycurl_cleanup_if_needed();
 	return 0;
 }
 
