@@ -2,11 +2,11 @@
 #ifndef MY_CURL_H
 #define MY_CURL_H
 
-#include <curl/curl.h>
-#include <stdlib.h>
 #include <unitypes.h>
 
-
+/*
+ * Public objects
+ */
 
 //! Should the curl environment be initialized with SSL on?
 enum mycurl_init_ssl {
@@ -26,14 +26,9 @@ struct mycurl_result {
 	char *body_ascii;
 };
 
-//! This is true if the global init is complete
-static bool mycurl_active = 0;
-
-//! This is a pointer to the active easy curl handle
-static CURL *mycurl_handle;
-
-//! The currently-active curl SSL mode
-static enum mycurl_init_ssl mycurl_ssl_mode;
+/*
+ * Public functions
+ */
 
 struct mycurl_result *mycurl_do(
 	char * url,
@@ -43,9 +38,5 @@ struct mycurl_result *mycurl_do(
 );
 
 void mycurl_cleanup_if_needed();
-
-
-
-
 
 #endif // MY_CURL_H
