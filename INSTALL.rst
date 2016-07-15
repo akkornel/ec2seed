@@ -30,7 +30,8 @@ This software has three dependencies that must be present before it will run:
 
 * **JSON-C** is used for parsing JSON from AWS.
 
-When building, we need the headers for all the above dependencies.
+When building, we need the headers for all the above dependencies.  `pkg-config` is also
+required, because that's how we verify that the dependencies are installed.
 
 If you are building directly from Git, you will need the `autotools` (including
 `automake`) in order to build `configure` (and other related files).
